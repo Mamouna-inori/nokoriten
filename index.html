@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>推薦点計算ツール</title>
+<meta name="description" content="Ⅲ年1学期の成績から、2学期の残り点を算出。絶望。">
+<meta property="og:title" content="推薦点計算ツール">
+<meta property="og:description" content="Ⅲ年1学期の成績から、2学期の残り点を算出。絶望。">
+<meta property="og:type" content="website">
+<style>
+
+figure.wp-block-pullquote { padding:0 !important; }
+@import url('https://fonts.googleapis.com/css2?family=Quicksand&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Kiwi+Maru&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Google+Sans+Flex:opsz,wght@6..144,1..1000&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+JP&display=swap');
+
+:root {
+  --base-radius: 8px;
+}
+
+/* ライトモード時のカラーパレット */
+:root, .light, .light-theme {
+  --green-1: #f8fffa;
+  --green-2: #f0fdf4;
+  --green-3: #d8fde5;
+  --green-4: #befad5;
+  --green-5: #a1f4c3;
+  --green-6: #7eeaae;
+  --green-7: #4edb95;
+  --green-8: #2ac17d;
+  --green-9: #3fcf8a;
+  --green-10: #2fc47f;
+  --green-11: #008145;
+  --green-12: #004523;
+
+  --green-a2: #00dd440f;
+  --green-a4: #00ec5b41;
+
+  --green-contrast: #0f271a;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --green-1: #0a140d;
+    --green-2: #111b14;
+    --green-3: #122c1b;
+    --green-4: #073d20;
+    --green-5: #084c28;
+    --green-6: #0a5b31;
+    --green-7: #096c3a;
+    --green-8: #008044;
+    --green-9: #008145;
+    --green-10: #12703e;
+    --green-11: #6bd08f;
+    --green-12: #a6f7bf;
+
+    --green-a2: #12f9570b;
+    --green-a4: #00fb6130;
+
+    --green-contrast: #fff;
+  }
+}
+
+* {
+  font-family: "IBM Plex Sans JP", "Noto Sans JP", "Meiryo", sans-serif;
+  font-style: normal;
+  color: var(--green-contrast);
+}
+
+body {
+  background-color: var(--green-1) !important;
+  margin: 0;
+  padding: 20px;
+}
+
+#content-in {
+  background: var(--green-1);
+  border-radius: var(--base-radius);
+  max-width: 1400px;
+  margin: 0 auto;
+  position: relative;
+  border: 0.2px solid var(--green-11);
+  box-shadow: 0 0 4px 0 var(--green-6);
+  padding: 20px;
+}
+
+/*----------------------------------------------------------------------------
+  推薦点計算ツール用スタイル
+----------------------------------------------------------------------------*/
+.calculator-wrap {
+  padding: 20px;
+  background: var(--green-1);
+  border: 1px solid var(--green-6);
+  border-radius: var(--base-radius);
+  max-width: 800px;
+  margin: 0 auto;
+  box-shadow: 0 4px 12px var(--green-a2);
+}
+
+.calc-header {
+  text-align: center;
+  margin-bottom: 25px;
+  border-bottom: 2px solid var(--green-9);
+  padding-bottom: 10px;
+}
+
+.calc-header h2 {
+  color: var(--green-12);
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.calc-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.calc-box {
+  background: var(--green-2);
+  border: 1px solid var(--green-4);
+  padding: 15px;
+  border-radius: var(--base-radius);
+  flex: 1;
+  min-width: 280px;
+}
+
+.calc-box h3 {
+  margin-top: 0;
+  border-bottom: 2px dashed var(--green-7);
+  padding-bottom: 5px;
+  font-size: 1.1em;
+  color: var(--green-11);
+}
+
+.input-group {
+  margin-bottom: 10px;
+}
+
+.input-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-size: 0.9em;
+  color: var(--green-10);
+  font-weight: bold;
+}
+
+.input-group input, 
+.input-group select {
+  width: 100%;
+  padding: 10px;
+  border: 2px solid var(--green-6);
+  border-radius: var(--base-radius);
+  background: var(--green-1);
+  color: var(--green-12);
+  font-size: 1.1em;
+  box-sizing: border-box;
+  transition: all 0.3s ease;
+}
+
+.input-group input:focus, 
+.input-group select:focus {
+  outline: none;
+  border-color: var(--green-11);
+  box-shadow: 0 0 6px var(--green-a4);
+}
+
+.result-text {
+  margin-top: 10px;
+  font-weight: bold;
+  font-size: 1.1em;
+  color: var(--green-11);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.res-num {
+  display: inline-block;
+  background: var(--green-1);
+  padding: 4px 12px;
+  border: 1px solid var(--green-6);
+  border-radius: var(--base-radius);
+  color: var(--green-12);
+  min-width: 100px;
+  text-align: right;
+  font-size: 1.1rem;
+}
+
+.total-section {
+  background: var(--green-2);
+  padding: 20px;
+  border-radius: var(--base-radius);
+  border: 2px solid var(--green-6);
+  margin-top: 10px;
+}
+
+.total-section h3 {
+  margin-top: 0;
+  color: var(--green-12);
+  font-size: 1.2em;
+  text-align: center;
+  border-bottom: none;
+}
+
+.result-equation {
+  text-align: center;
+  font-size: 1.1em;
+  color: var(--green-12);
+  font-weight: bold;
+  margin-top: 10px;
+  background: var(--green-1);
+  padding: 10px;
+  border-radius: var(--base-radius);
+  border: 1px dashed var(--green-6);
+}
+
+.final-result {
+  font-size: 1.4em;
+  color: var(--green-12);
+  font-weight: bold;
+  background: var(--green-1);
+  padding: 15px;
+  border-radius: var(--base-radius);
+  text-align: center;
+  border: 2px solid var(--green-11);
+  margin-top: 15px;
+  box-shadow: 0 4px 12px var(--green-a2);
+}
+
+.checkbox-group {
+  margin: 15px 0;
+  padding: 10px;
+  background: var(--green-1);
+  border: 1px dashed var(--green-7);
+  border-radius: var(--base-radius);
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.checkbox-group input[type="checkbox"] {
+  transform: scale(1.3);
+  accent-color: var(--green-11);
+  cursor: pointer;
+}
+
+.checkbox-group label {
+  cursor: pointer;
+  font-weight: bold;
+  color: var(--green-11);
+  font-size: 0.95em;
+}
+
+.grade-info {
+  font-size: 0.85em;
+  color: var(--green-10);
+  margin-top: 5px;
+  text-align: right;
+}
+
+.target-input-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.target-input-wrap input {
+  width: 80px;
+  text-align: center;
+}
+</style>
+</head>
+<body>
+
+<div id="content-in">
+  <div class="calculator-wrap">
+    <div class="calc-header">
+      <h2>推薦点シミュレーター</h2>
+      <p style="font-size: 0.9em; color: var(--green-10); margin-top: 5px;">高3の成績に「1学期の成績」を入力し、最終結果をシミュレーションします。</p>
+    </div>
+
+    <!-- 高1・高2 -->
+    <div class="calc-row">
+      <div class="calc-box">
+        <h3>【高校1年】</h3>
+        <div class="input-group">
+          <label>高1学年末の平均点</label>
+          <input type="number" id="score1" step="0.01">
+        </div>
+        <div class="result-text">
+          <span>× 9.9 ＝ (ア)</span>
+          <span id="res_a" class="res-num">0.00</span>
+        </div>
+      </div>
+      <div class="calc-box">
+        <h3>【高校2年】</h3>
+        <div class="input-group">
+          <label>高II学年末の平均点</label>
+          <input type="number" id="score2" step="0.01">
+        </div>
+        <div class="result-text">
+          <span>× 12.4 ＝ (イ)</span>
+          <span id="res_i" class="res-num">0.00</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 高校3年 -->
+    <div class="calc-row">
+      <div class="calc-box" style="background: var(--green-3); border-color: var(--green-8);">
+        <h3>【高校3年 1学期】</h3>
+        <div class="input-group">
+          <label>高III 1学期の平均点</label>
+          <input type="number" id="score3" step="0.01" placeholder="1学期の平均点を入力">
+        </div>
+      </div>
+    </div>
+
+    <!-- 探究・高大連携 -->
+    <div class="calc-row">
+      <div class="calc-box">
+        <h3>【探究選択・高大連携講座】(エ)</h3>
+        
+        <div style="display:flex; gap:15px; flex-wrap:wrap; margin-bottom: 10px;">
+          <div class="input-group" style="flex:1; min-width: 120px;">
+            <label>高II 探究選択 (満点40)</label>
+            <select id="score_explore_2">
+              <option value="" selected hidden>選択</option>
+              <option value="40">A (40点)</option>
+              <option value="32">B (32点)</option>
+              <option value="24">C (24点)</option>
+              <option value="16">D (16点)</option>
+              <option value="0">E (0点)</option>
+            </select>
+          </div>
+          <div class="input-group" style="flex:1; min-width: 120px;">
+            <label>高II 高大連携 (満点40)</label>
+            <select id="score_collab_2">
+              <option value="" selected hidden>選択</option>
+              <option value="40">A (40点)</option>
+              <option value="32">B (32点)</option>
+              <option value="24">C (24点)</option>
+              <option value="16">D (16点)</option>
+              <option value="0">E (0点)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="result-text" style="justify-content: flex-end; margin-top: 15px;">
+          <span>(エ) 合計 ＝ </span>
+          <span id="res_e" class="res-num" style="margin-left: 10px;">0.00</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 目標逆算 -->
+    <div class="total-section" style="margin-top:20px; background:var(--green-3); border-color:var(--green-8);">
+      <h3>【目標に届くための高3・2学期 必要平均点】</h3>
+      
+      <div class="target-input-wrap">
+        <label style="font-weight: bold; color: var(--green-12);">目標とする推薦点:</label>
+        <div class="input-group" style="margin:0; width: 120px;">
+          <select id="target_score">
+            <option value="60" selected>60点</option>
+            <option value="70">70点</option>
+            <option value="80">80点</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="checkbox-group">
+        <input type="checkbox" id="noEngQual">
+        <label for="noEngQual">英検・TOEIC 未取得（+10点）</label>
+      </div>
+
+      <div class="result-equation" style="font-size: 1rem; text-align: left; padding: 15px;">
+        <ul style="margin: 0; padding-left: 20px; color: var(--green-12);">
+          <li>目標到達に必要な合計点: <span id="res_target_total" style="color:var(--green-11);">2376</span> 点</li>
+          <li>高1・高2の持ち点: <span id="res_fixed_total" style="color:var(--green-11);">0</span> 点</li>
+        </ul>
+        <div style="margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--green-6); font-size: 0.9em;">
+          高3全体で必要な平均点: <span id="res_required_avg_all">0.00</span> 点<br>
+          <span style="font-size: 0.85em; color: var(--green-10);"></span>
+        </div>
+      </div>
+      
+      <div class="final-result" style="border-color:var(--green-9); background:var(--green-2);">
+        2学期で必要な平均点: <span id="res_required_term2" style="color:var(--green-12); font-size: 1.2em;">0.00</span> 点
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const inputs = document.querySelectorAll('input, select');
+  inputs.forEach(input => {
+    input.addEventListener('input', calculate);
+  });
+  
+  calculate();
+});
+
+function calculate() {
+  // 入力値の取得
+  const score1 = Number(document.getElementById('score1').value) || 0;
+  const score2 = Number(document.getElementById('score2').value) || 0;
+  const score3_term1 = Number(document.getElementById('score3').value) || 0;
+  
+  const exp2 = Number(document.getElementById('score_explore_2').value) || 0;
+  const col2 = Number(document.getElementById('score_collab_2').value) || 0;
+  
+  const baseTarget = Number(document.getElementById('target_score').value) || 60;
+  const noEngQual = document.getElementById('noEngQual').checked;
+
+  // 各項目の計算
+  const a = score1 * 9.9;
+  const i = score2 * 12.4;
+  const e = exp2 + col2; // 探究・高大連携(高3はゼロ換算)
+
+  // 目標逆算の計算
+  const actualTargetPoint = noEngQual ? baseTarget + 10 : baseTarget;
+  const requiredTotal = actualTargetPoint * 39.6; // 目標到達に必要な合計点数
+  
+  // 高1・高2までの確定持ち点
+  const fixedTotal = a + i + e;
+  
+  // 稼がなければならない高3の学力点
+  const requiredScore3Total = requiredTotal - fixedTotal;
+  
+  // 高3全体の必要平均点
+  let requiredAvgAll = requiredScore3Total / 15.5;
+  if (requiredAvgAll < 0) requiredAvgAll = 0;
+  
+  // 2学期に必要な平均点 (1学期と2学期が1:1で評価される前提)
+  // 全体平均 = (1学期 + 2学期) / 2  →  2学期 = 全体平均 * 2 - 1学期
+  let requiredTerm2 = (requiredAvgAll * 2) - score3_term1;
+
+  // 丸め処理
+  const round = (num, digits) => {
+    const factor = Math.pow(10, digits);
+    return (Math.round(num * factor) / factor).toFixed(digits);
+  };
+
+  // 画面への反映
+  document.getElementById('res_a').textContent = round(a, 2);
+  document.getElementById('res_i').textContent = round(i, 2);
+  document.getElementById('res_e').textContent = round(e, 0);
+  
+  document.getElementById('res_target_total').textContent = round(requiredTotal, 0);
+  document.getElementById('res_fixed_total').textContent = round(fixedTotal, 2);
+  document.getElementById('res_required_avg_all').textContent = round(requiredAvgAll, 2);
+  
+  const term2El = document.getElementById('res_required_term2');
+  if(score3_term1 === 0) {
+    term2El.textContent = "1学期の平均点を入力してください";
+    term2El.style.color = "var(--green-10)";
+    term2El.style.fontSize = "0.8em";
+  } else if(requiredTerm2 > 100) {
+    term2El.textContent = "達成困難 (" + round(requiredTerm2, 2) + "点必要)";
+    term2El.style.color = "red";
+    term2El.style.fontSize = "1em";
+  } else if(requiredTerm2 <= 0) {
+    term2El.textContent = "0.00 (現状のペースで達成可能)";
+    term2El.style.color = "var(--green-12)";
+    term2El.style.fontSize = "1.2em";
+  } else {
+    term2El.textContent = round(requiredTerm2, 2);
+    term2El.style.color = "var(--green-12)";
+    term2El.style.fontSize = "1.2em";
+  }
+}
+</script>
+</body>
+</html>
