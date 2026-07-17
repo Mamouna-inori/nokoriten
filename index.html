@@ -4,9 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>推薦点計算ツール</title>
-<meta name="description" content="Ⅲ年1学期の成績から、2学期の残り点を算出。絶望。">
+<meta name="description" content="高校3年1学期期末までの成績から、現時点での推薦点を算出。">
 <meta property="og:title" content="推薦点計算ツール">
-<meta property="og:description" content="Ⅲ年1学期の成績から、2学期の残り点を算出。絶望。">
+<meta property="og:description" content="高校3年1学期期末までの成績から、現時点での推薦点を算出。">
 <meta property="og:type" content="website">
 <style>
 figure.wp-block-pullquote { padding:0 !important; }
@@ -256,25 +256,6 @@ body {
   font-size: 0.95em;
 }
 
-.grade-info {
-  font-size: 0.85em;
-  color: var(--green-10);
-  margin-top: 5px;
-  text-align: right;
-}
-
-.target-input-wrap {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  margin-bottom: 15px;
-}
-
-.target-input-wrap input {
-  width: 80px;
-  text-align: center;
-}
 </style>
 </head>
 <body>
@@ -282,7 +263,8 @@ body {
 <div id="content-in">
   <div class="calculator-wrap">
     <div class="calc-header">
-      <h2>最終推薦点シミュレーター</h2>
+      <h2>推薦点シミュレーター</h2>
+      <p style="font-size:0.9em; color:var(--green-10); margin: 0;">3年1学期期末までの推薦点の計算をしてみましょう。</p>
     </div>
 
     <!-- 高1・高2 -->
@@ -290,7 +272,7 @@ body {
       <div class="calc-box">
         <h3>【高校1年】</h3>
         <div class="input-group">
-          <label>高1学年末の平均点</label>
+          <label>高I学年末の平均点</label>
           <input type="number" id="score1" step="0.01">
         </div>
         <div class="result-text">
@@ -311,25 +293,15 @@ body {
       </div>
     </div>
 
-    <!-- 探究・高大連携 -->
+    <!-- 高大連携・探究 -->
     <div class="calc-row">
       <div class="calc-box">
-        <h3>【探究選択・高大連携講座】</h3>
+        <h3>【高大連携・探究】</h3>
+        <p style="font-size:0.85em; color:var(--green-10); margin-top:-10px; text-align:center;">評定 A(40点), B(32点), C(24点), D(16点)</p>
         
         <div style="display:flex; gap:15px; flex-wrap:wrap; margin-bottom: 10px;">
           <div class="input-group" style="flex:1; min-width: 120px;">
-            <label>高II 探究選択 (満点40)</label>
-            <select id="score_explore_2">
-              <option value="" selected hidden>選択</option>
-              <option value="40">A (40点)</option>
-              <option value="32">B (32点)</option>
-              <option value="24">C (24点)</option>
-              <option value="16">D (16点)</option>
-              <option value="0">E (0点)</option>
-            </select>
-          </div>
-          <div class="input-group" style="flex:1; min-width: 120px;">
-            <label>高II 高大連携 (満点40)</label>
+            <label>高大連携講座の得点 (ウ)</label>
             <select id="score_collab_2">
               <option value="" selected hidden>選択</option>
               <option value="40">A (40点)</option>
@@ -339,11 +311,17 @@ body {
               <option value="0">E (0点)</option>
             </select>
           </div>
-        </div>
-
-        <div class="result-text" style="justify-content: flex-end; margin-top: 15px;">
-          <span>(ウ) 合計 ＝ </span>
-          <span id="res_u" class="res-num" style="margin-left: 10px;">0.00</span>
+          <div class="input-group" style="flex:1; min-width: 120px;">
+            <label>探究選択の得点 (エ)</label>
+            <select id="score_explore_2">
+              <option value="" selected hidden>選択</option>
+              <option value="40">A (40点)</option>
+              <option value="32">B (32点)</option>
+              <option value="24">C (24点)</option>
+              <option value="16">D (16点)</option>
+              <option value="0">E (0点)</option>
+            </select>
+          </div>
         </div>
       </div>
     </div>
@@ -351,24 +329,23 @@ body {
     <!-- 高校3年 -->
     <div class="calc-row">
       <div class="calc-box" style="background: var(--green-3); border-color: var(--green-8);">
-        <h3>【高校3年 1学期】</h3>
+        <h3>【高校3年 1学期の平均点】</h3>
         <div class="input-group">
           <label>高III 1学期の平均点</label>
           <input type="number" id="score3" step="0.01" placeholder="1学期の平均点を入力">
         </div>
         <div class="result-text">
-          <span>× 7.75 ＝ (エ)</span>
-          <span id="res_e" class="res-num">0.00</span>
+          <span>× 7.75 ＝ (オ)</span>
+          <span id="res_o" class="res-num">0.00</span>
         </div>
-        <p style="font-size: 0.8em; color: var(--green-10); margin-top: 5px; text-align: right;">※1学期と2学期が等倍と仮定し、高3係数の半分(7.75)で算出</p>
       </div>
     </div>
 
-    <!-- 現時点での推薦点 (暫定) -->
+    <!-- 高3の1学期期末までの推薦点 -->
     <div class="total-section">
-      <h3>【1学期終了時点での推薦点】</h3>
+      <h3>【高3の1学期期末までの推薦点】</h3>
       <div class="result-equation">
-        (ア) + (イ) + (ウ) + (エ) ＝ <span id="res_total_current" style="color:var(--green-11);">0.00</span>
+        ((ア) + (イ) + (ウ) + (エ) + (オ)) = <span id="res_total_points" style="color:var(--green-11);">0.00</span> 点
       </div>
       <div class="final-result">
         <div style="font-size: 0.8em; color:var(--green-10); margin-bottom: 5px;">÷ 30.85 ＝</div>
@@ -378,37 +355,23 @@ body {
 
     <!-- 目標逆算 -->
     <div class="total-section" style="margin-top:20px; background:var(--green-3); border-color:var(--green-8);">
-      <h3>【目標に届くための高3・2学期 必要平均点】</h3>
+      <h3>【60点までに今後必要な目標平均点】</h3>
       
-      <div class="target-input-wrap">
-        <label style="font-weight: bold; color: var(--green-12);">目標とする推薦点:</label>
-        <div class="input-group" style="margin:0; width: 120px;">
-          <select id="target_score">
-            <option value="60" selected>60点</option>
-            <option value="70">70点</option>
-            <option value="80">80点</option>
-          </select>
-        </div>
-      </div>
-
       <div class="checkbox-group">
         <input type="checkbox" id="noEngQual">
-        <label for="noEngQual">英検・TOEIC 未取得（+10点）</label>
+        <label for="noEngQual">英検・TOEIC 未取得 (基準点を2772点に変更)</label>
       </div>
 
       <div class="result-equation" style="font-size: 1rem; text-align: left; padding: 15px;">
         <ul style="margin: 0; padding-left: 20px; color: var(--green-12);">
-          <li>到達に必要な合計点: <span id="res_target_total" style="color:var(--green-11);">2376</span> 点</li>
-          <li>高1・高2の持ち点: <span id="res_fixed_total" style="color:var(--green-11);">0</span> 点</li>
+          <li>基準点: <span id="res_base_points" style="color:var(--green-11);">2376</span> 点</li>
+          <li>現時点の持ち点: <span id="res_current_total_calc" style="color:var(--green-11);">0</span> 点</li>
         </ul>
-        <div style="margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--green-6); font-size: 0.9em;">
-          高3全体で必要な平均点: <span id="res_required_avg_all">0.00</span> 点<br>
-          <span style="font-size: 0.85em; color: var(--green-10);"></span>
-        </div>
       </div>
       
       <div class="final-result" style="border-color:var(--green-9); background:var(--green-2);">
-        2学期で必要な平均点: <span id="res_required_term2" style="color:var(--green-12); font-size: 1.2em;">0.00</span> 点
+        <div style="font-size: 0.8em; color:var(--green-10); margin-bottom: 5px;">( 基準点 - 持ち点 ) ÷ 8.75 ＝</div>
+        大学推薦に必要な目標平均点: <span id="res_goal_avg" style="color:var(--green-12); font-size: 1.2em;">0.00</span> 点
       </div>
     </div>
 
@@ -429,41 +392,26 @@ function calculate() {
   // 入力値の取得
   const score1 = Number(document.getElementById('score1').value) || 0;
   const score2 = Number(document.getElementById('score2').value) || 0;
+  const score_explore_2 = Number(document.getElementById('score_explore_2').value) || 0; // 探究
+  const score_collab_2 = Number(document.getElementById('score_collab_2').value) || 0;   // 高大連携
   const score3_term1 = Number(document.getElementById('score3').value) || 0;
-  
-  const exp2 = Number(document.getElementById('score_explore_2').value) || 0;
-  const col2 = Number(document.getElementById('score_collab_2').value) || 0;
-  
-  const baseTarget = Number(document.getElementById('target_score').value) || 60;
   const noEngQual = document.getElementById('noEngQual').checked;
 
-  // 各項目の計算
-  const a = score1 * 9.9;
-  const i = score2 * 12.4;
-  const u = exp2 + col2; // 探究・高大連携(高3はゼロ換算)
-  const e = score3_term1 * 7.75; // 高3 1学期分
+  // 各項目の計算 (画像に合わせる)
+  const a = score1 * 9.9; // (ア)
+  const i = score2 * 12.4; // (イ)
+  const u = score_collab_2; // (ウ)
+  const e = score_explore_2; // (エ)
+  const o = score3_term1 * 7.75; // (オ)
 
-  // 現時点での暫定推薦点計算
-  const currentTotal = a + i + u + e;
+  // 現時点での推薦点計算
+  const currentTotal = a + i + u + e + o; // (ア)+(イ)+(ウ)+(エ)+(オ)
   const currentPoint = currentTotal / 30.85;
 
-  // 目標逆算の計算
-  const actualTargetPoint = noEngQual ? baseTarget + 10 : baseTarget;
-  const requiredTotal = actualTargetPoint * 39.6; // 目標到達に必要な合計点数
-  
-  // 高1・高2までの確定持ち点
-  const fixedTotal = a + i + u;
-  
-  // 稼がなければならない高3の学力点
-  const requiredScore3Total = requiredTotal - fixedTotal;
-  
-  // 高3全体の必要平均点
-  let requiredAvgAll = requiredScore3Total / 15.5;
-  if (requiredAvgAll < 0) requiredAvgAll = 0;
-  
-  // 2学期に必要な平均点 (1学期と2学期が1:1で評価される前提)
-  // 全体平均 = (1学期 + 2学期) / 2  →  2学期 = 全体平均 * 2 - 1学期
-  let requiredTerm2 = (requiredAvgAll * 2) - score3_term1;
+  // 目標逆算の計算 (画像に合わせる: 60点まで)
+  const k = noEngQual ? 2772 : 2376; // 基準点
+  const remainingPoints = k - currentTotal;
+  let goalAvg = remainingPoints / 8.75;
 
   // 丸め処理
   const round = (num, digits) => {
@@ -474,33 +422,32 @@ function calculate() {
   // 画面への反映
   document.getElementById('res_a').textContent = round(a, 2);
   document.getElementById('res_i').textContent = round(i, 2);
-  document.getElementById('res_u').textContent = round(u, 0);
-  document.getElementById('res_e').textContent = round(e, 4);
+  document.getElementById('res_o').textContent = round(o, 2);
   
-  document.getElementById('res_total_current').textContent = round(currentTotal, 4);
+  document.getElementById('res_total_points').textContent = round(currentTotal, 2);
   document.getElementById('res_current_point').textContent = round(currentPoint, 4);
   
-  document.getElementById('res_target_total').textContent = round(requiredTotal, 0);
-  document.getElementById('res_fixed_total').textContent = round(fixedTotal, 2);
-  document.getElementById('res_required_avg_all').textContent = round(requiredAvgAll, 2);
+  // 目標逆算
+  document.getElementById('res_base_points').textContent = k;
+  document.getElementById('res_current_total_calc').textContent = round(currentTotal, 2);
   
-  const term2El = document.getElementById('res_required_term2');
-  if(score3_term1 === 0) {
-    term2El.textContent = "1学期の平均点を入力してください";
-    term2El.style.color = "var(--green-10)";
-    term2El.style.fontSize = "0.8em";
-  } else if(requiredTerm2 > 100) {
-    term2El.textContent = "達成困難 (" + round(requiredTerm2, 2) + "点必要)";
-    term2El.style.color = "red";
-    term2El.style.fontSize = "1em";
-  } else if(requiredTerm2 <= 0) {
-    term2El.textContent = "0.00 (現状のペースで達成可能)";
-    term2El.style.color = "var(--green-12)";
-    term2El.style.fontSize = "1.2em";
+  const goalAvgEl = document.getElementById('res_goal_avg');
+  if (currentTotal === 0 && score1 === 0 && score2 === 0 && score_explore_2 === 0 && score_collab_2 === 0 && score3_term1 === 0) {
+    goalAvgEl.textContent = "入力を開始してください";
+    goalAvgEl.style.color = "var(--green-10)";
+    goalAvgEl.style.fontSize = "0.8em";
+  } else if (goalAvg > 100) {
+    goalAvgEl.textContent = "達成不可能 (" + round(goalAvg, 2) + "点必要)";
+    goalAvgEl.style.color = "red";
+    goalAvgEl.style.fontSize = "1em";
+  } else if (goalAvg <= 0) {
+    goalAvgEl.textContent = "0.00 (達成済み)";
+    goalAvgEl.style.color = "var(--green-12)";
+    goalAvgEl.style.fontSize = "1.2em";
   } else {
-    term2El.textContent = round(requiredTerm2, 2);
-    term2El.style.color = "var(--green-12)";
-    term2El.style.fontSize = "1.2em";
+    goalAvgEl.textContent = round(goalAvg, 2);
+    goalAvgEl.style.color = "var(--green-12)";
+    goalAvgEl.style.fontSize = "1.2em";
   }
 }
 </script>
