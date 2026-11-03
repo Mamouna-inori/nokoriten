@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>推薦点シミュレーター | MAMOUNA</title>
+  <meta name="description" content="高校3年2学期中間までの成績から、現時点での推薦点と今後必要な目標平均点を算出します。">
+  <meta property="og:title" content="推薦点シミュレーター | MAMOUNA">
+  <meta property="og:description" content="高校3年2学期中間までの成績から、現時点での推薦点と今後必要な目標平均点を算出します。">
+  <meta property="og:type" content="website">
+  <link rel="icon" type="image/png" href="/icon.png">
+  <link rel="apple-touch-icon" href="/icon.png">
+  <!-- サイト本体と共通のスタイル -->
+  <link rel="stylesheet" href="/css/simple.css?v=20260920c">
+  <style>
+    /* 推薦点シミュレーター固有のスタイル。サイト共通CSSの配色・書体・角丸を継承 */
+    .recommendation-main {
+      padding-top: 42px;
+    }
+
+    .recommendation-content {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .recommendation-breadcrumb {
+      margin: 0 0 18px;
+      color: var(--color-text-muted);
+      font-family: var(--font-en);
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+    }
+
+    .recommendation-breadcrumb a {
+      color: var(--color-brand-accent);
+    }
+
+    .recommendation-heading {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .recommendation-heading .section-title-en {
+      font-size: 1.8rem;
+      margin-bottom: 3px;
+    }
+
+    .recommendation-lead {
+      margin-top: 14px;
+      color: var(--color-text-sub);
+      font-size: 0.92rem;
+      line-height: 1.8;
+    }
+
+    .recommendation-section {
+      margin-bottom: 22px;
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius);
+      padding: 24px;
+      box-shadow: 0 4px 20px rgba(27, 54, 93, 0.035);
+    }
+
+    .recommendation-section-title {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      padding-bottom: 12px;
+      margin-bottom: 18px;
+      border-bottom: 1px solid var(--color-border-light);
+    }
+
+    .recommendation-section-title h2 {
+      color: var(--color-brand-blue);
+      font-size: 1.08rem;
+      font-weight: 700;
+      line-height: 1.5;
+    }
+
+    .recommendation-section-title span {
+      color: var(--color-text-muted);
+      font-family: var(--font-en);
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.09em;
+    }
+
+    .recommendation-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .recommendation-card {
+      min-width: 0;
+      padding: 20px;
+      background: #FFFFFF;
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius);
+    }
+
+    .recommendation-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .recommendation-card h3 {
+      color: var(--color-text-main);
+      font-size: 0.98rem;
+      font-weight: 700;
+    }
+
+    .recommendation-card-code {
+      flex: 0 0 auto;
+      color: var(--color-brand-accent);
+      font-family: var(--font-en);
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+    }
+
+    .recommendation-field {
+      margin-bottom: 12px;
+    }
+
+    .recommendation-field:last-child {
+      margin-bottom: 0;
+    }
+
+    .recommendation-field label {
+      display: block;
+      margin-bottom: 6px;
+      color: var(--color-text-sub);
+      font-size: 0.84rem;
+      font-weight: 600;
+    }
+
+    .recommendation-field input,
+    .recommendation-field select,
+    .target-select {
+      width: 100%;
+      min-height: 44px;
+      padding: 9px 12px;
+      border: 1px solid #CBD5E1;
+      border-radius: 4px;
+      background: #FFFFFF;
+      color: var(--color-text-main);
+      font-family: var(--font-jp);
+      font-size: 1rem;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .recommendation-field input:focus,
+    .recommendation-field select:focus,
+    .target-select:focus {
+      outline: none;
+      border-color: var(--color-brand-accent);
+      box-shadow: 0 0 0 3px rgba(43, 108, 176, 0.12);
+    }
+
+    .recommendation-result-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 14px;
+      padding-top: 12px;
+      border-top: 1px solid var(--color-border-light);
+      color: var(--color-text-sub);
+      font-size: 0.88rem;
+      font-weight: 600;
+    }
+
+    .recommendation-result-value {
+      display: inline-block;
+      min-width: 108px;
+      padding: 6px 10px;
+      border: 1px solid var(--color-border);
+      border-radius: 4px;
+      background: #F8FAFC;
+      color: var(--color-brand-blue);
+      font-family: var(--font-en);
+      font-size: 1rem;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+      text-align: right;
+    }
+
+    .recommendation-note {
+      margin: -5px 0 16px;
+      color: var(--color-text-muted);
+      font-size: 0.8rem;
+      line-height: 1.7;
+    }
+
+    .recommendation-select-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .recommendation-total {
+      padding: 26px;
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-top: 3px solid var(--color-brand-blue);
+      border-radius: var(--radius);
+      box-shadow: 0 4px 20px rgba(27, 54, 93, 0.04);
+      margin-bottom: 22px;
+    }
+
+    .recommendation-total .recommendation-section-title {
+      margin-bottom: 18px;
+    }
+
+    .recommendation-equation {
+      padding: 13px 16px;
+      border: 1px solid var(--color-border-light);
+      border-radius: 4px;
+      background: #F8FAFC;
+      color: var(--color-text-sub);
+      font-size: 0.9rem;
+      font-weight: 600;
+      line-height: 1.8;
+      text-align: center;
+      overflow-wrap: anywhere;
+    }
+
+    .recommendation-equation strong {
+      color: var(--color-brand-blue);
+      font-family: var(--font-en);
+      font-size: 1.1rem;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .recommendation-current-result {
+      margin-top: 14px;
+      padding: 20px;
+      border-radius: 4px;
+      background: var(--color-brand-blue);
+      color: #FFFFFF;
+      text-align: center;
+    }
+
+    .recommendation-current-result-label {
+      display: block;
+      margin-bottom: 4px;
+      color: rgba(255,255,255,0.78);
+      font-size: 0.82rem;
+      font-weight: 600;
+    }
+
+    .recommendation-current-result-value {
+      color: #FFFFFF;
+      font-family: var(--font-en);
+      font-size: clamp(2rem, 6vw, 2.6rem);
+      font-weight: 700;
+      line-height: 1.25;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .recommendation-current-result-unit {
+      margin-left: 5px;
+      color: rgba(255,255,255,0.85);
+      font-size: 0.9rem;
+    }
+
+    .recommendation-formula-caption {
+      margin-top: 8px;
+      color: var(--color-text-muted);
+      font-family: var(--font-en);
+      font-size: 0.76rem;
+      text-align: center;
+    }
+
+    .target-controls {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 16px;
+      align-items: end;
+      margin-bottom: 16px;
+    }
+
+    .target-control-label {
+      display: block;
+      margin-bottom: 6px;
+      color: var(--color-text-sub);
+      font-size: 0.84rem;
+      font-weight: 600;
+    }
+
+    .qualification-check {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      min-height: 44px;
+      padding: 9px 12px;
+      border: 1px solid var(--color-border);
+      border-radius: 4px;
+      background: #F8FAFC;
+      color: var(--color-text-sub);
+      font-size: 0.86rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .qualification-check input {
+      width: 17px;
+      height: 17px;
+      margin: 0;
+      accent-color: var(--color-brand-accent);
+      cursor: pointer;
+    }
+
+    .target-breakdown {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin: 14px 0;
+    }
+
+    .target-breakdown-item {
+      padding: 12px 14px;
+      border: 1px solid var(--color-border-light);
+      border-radius: 4px;
+      background: #F8FAFC;
+    }
+
+    .target-breakdown-label {
+      display: block;
+      margin-bottom: 4px;
+      color: var(--color-text-muted);
+      font-size: 0.76rem;
+    }
+
+    .target-breakdown-value {
+      color: var(--color-text-main);
+      font-family: var(--font-en);
+      font-size: 1.05rem;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .recommendation-goal-result {
+      padding: 20px;
+      border: 1px solid #C7D8EA;
+      border-radius: 4px;
+      background: #EFF6FC;
+      text-align: center;
+    }
+
+    .recommendation-goal-result-label {
+      display: block;
+      margin-bottom: 5px;
+      color: var(--color-brand-blue);
+      font-size: 0.86rem;
+      font-weight: 700;
+    }
+
+    .recommendation-goal-result-value {
+      display: block;
+      color: var(--color-brand-blue);
+      font-family: var(--font-en);
+      font-size: clamp(1.5rem, 5vw, 2rem);
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+      overflow-wrap: anywhere;
+    }
+
+    .recommendation-footer-note {
+      margin-top: 16px;
+      color: var(--color-text-muted);
+      font-size: 0.76rem;
+      line-height: 1.7;
+    }
+
+    @media (max-width: 680px) {
+      .recommendation-main {
+        padding-top: 24px;
+      }
+      .recommendation-section,
+      .recommendation-total {
+        padding: 18px;
+      }
+      .recommendation-grid,
+      .recommendation-select-grid,
+      .target-controls {
+        grid-template-columns: 1fr;
+      }
+      .target-breakdown {
+        grid-template-columns: 1fr 1fr;
+      }
+      .recommendation-card {
+        padding: 16px;
+      }
+      .recommendation-heading .section-title-en {
+        font-size: 1.45rem;
+      }
+    }
+
+    @media (max-width: 380px) {
+      .recommendation-result-row {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+      .recommendation-result-value {
+        width: 100%;
+        text-align: left;
+      }
+      .target-breakdown {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- サイト共通ヘッダー -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="/" class="site-logo" aria-label="MAMOUNA ホーム">
+        <span class="site-logo-main">MAMOUNA</span>
+        <span class="site-logo-sub">OFFICIAL WEB SITE</span>
+      </a>
+      <nav class="site-nav" aria-label="メインナビゲーション">
+        <ul>
+          <li><a href="/index.html#profile">PROFILE</a></li>
+          <li><a href="/index.html#movie">MOVIE</a></li>
+          <li><a href="/index.html#articles">ARTICLES</a></li>
+          <li><a href="/index.html#sns">SNS</a></li>
+          <li><a href="/index.html#book">BOOK</a></li>
+          <li><a href="/index.html#contact">CONTACT</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main class="recommendation-main">
+    <div class="recommendation-content">
+      <div class="recommendation-breadcrumb"><a href="/">HOME</a>　/　TOOLS　/　RECOMMENDATION SCORE</div>
+
+      <div class="recommendation-heading">
+        <h1 class="section-title-en">RECOMMENDATION SCORE</h1>
+        <p class="section-title-jp">推薦点シミュレーター</p>
+        <p class="recommendation-lead">高校3年2学期中間までの成績から、現時点での推薦点と<br class="desktop-only">大学推薦に向けて今後必要な目標平均点を計算します。</p>
+      </div>
+
+      <!-- 成績入力 -->
+      <section class="recommendation-section" aria-labelledby="input-heading">
+        <div class="recommendation-section-title">
+          <h2 id="input-heading">成績・評価の入力</h2>
+          <span>INPUT DATA</span>
+        </div>
+
+        <div class="recommendation-grid">
+          <div class="recommendation-card">
+            <div class="recommendation-card-header">
+              <h3>高校1年</h3>
+              <span class="recommendation-card-code">GRADE 01</span>
+            </div>
+            <div class="recommendation-field">
+              <label for="score1">高I学年末の平均点</label>
+              <input type="number" id="score1" step="0.01" inputmode="decimal" placeholder="平均点を入力">
+            </div>
+            <div class="recommendation-result-row">
+              <span>× 9.9 ＝ (ア)</span>
+              <span id="res_a" class="recommendation-result-value">0.00</span>
+            </div>
+          </div>
+
+          <div class="recommendation-card">
+            <div class="recommendation-card-header">
+              <h3>高校2年</h3>
+              <span class="recommendation-card-code">GRADE 02</span>
+            </div>
+            <div class="recommendation-field">
+              <label for="score2">高II学年末の平均点</label>
+              <input type="number" id="score2" step="0.01" inputmode="decimal" placeholder="平均点を入力">
+            </div>
+            <div class="recommendation-result-row">
+              <span>× 12.4 ＝ (イ)</span>
+              <span id="res_i" class="recommendation-result-value">0.00</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="recommendation-card" style="margin-top:16px;">
+          <div class="recommendation-card-header">
+            <h3>高大連携・探究</h3>
+            <span class="recommendation-card-code">ACTIVITY</span>
+          </div>
+          <p class="recommendation-note">評定に応じた得点を選択してください。A（40点）／B（32点）／C（24点）／D（16点）／E（0点）</p>
+          <div class="recommendation-select-grid">
+            <div class="recommendation-field">
+              <label for="score_collab_2">高大連携講座の得点 (ウ)</label>
+              <select id="score_collab_2">
+                <option value="" selected hidden>選択してください</option>
+                <option value="40">A（40点）</option>
+                <option value="32">B（32点）</option>
+                <option value="24">C（24点）</option>
+                <option value="16">D（16点）</option>
+                <option value="0">E（0点）</option>
+              </select>
+            </div>
+            <div class="recommendation-field">
+              <label for="score_explore_2">探究選択の得点 (エ)</label>
+              <select id="score_explore_2">
+                <option value="" selected hidden>選択してください</option>
+                <option value="40">A（40点）</option>
+                <option value="32">B（32点）</option>
+                <option value="24">C（24点）</option>
+                <option value="16">D（16点）</option>
+                <option value="0">E（0点）</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 高校3年の入力 -->
+      <section class="recommendation-section" aria-labelledby="grade3-heading">
+        <div class="recommendation-section-title">
+          <h2 id="grade3-heading">高校3年の平均点</h2>
+          <span>GRADE 03</span>
+        </div>
+        <div class="recommendation-grid">
+          <div class="recommendation-card">
+            <div class="recommendation-card-header">
+              <h3>1学期</h3>
+              <span class="recommendation-card-code">TERM 01</span>
+            </div>
+            <div class="recommendation-field">
+              <label for="score3">高III 1学期の平均点</label>
+              <input type="number" id="score3" step="0.01" inputmode="decimal" placeholder="1学期の平均点を入力">
+            </div>
+            <div class="recommendation-result-row">
+              <span>× 7.75 ＝ (オ)</span>
+              <span id="res_o" class="recommendation-result-value">0.00</span>
+            </div>
+          </div>
+
+          <div class="recommendation-card">
+            <div class="recommendation-card-header">
+              <h3>2学期中間</h3>
+              <span class="recommendation-card-code">TERM 02 MID</span>
+            </div>
+            <div class="recommendation-field">
+              <label for="score4">高III 2学期中間の平均点</label>
+              <input type="number" id="score4" step="0.01" inputmode="decimal" placeholder="2学期中間の平均点を入力">
+            </div>
+            <div class="recommendation-result-row">
+              <span>× 3.625 ＝ (カ)</span>
+              <span id="res_ka" class="recommendation-result-value">0.00</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 現時点での推薦点 -->
+      <section class="recommendation-total" aria-labelledby="current-heading">
+        <div class="recommendation-section-title">
+          <h2 id="current-heading">高3の2学期中間までの推薦点</h2>
+          <span>CURRENT SCORE</span>
+        </div>
+        <div class="recommendation-equation">
+          (ア) ＋ (イ) ＋ (ウ) ＋ (エ) ＋ (オ) ＋ (カ) ＝ <strong id="res_total_points">0.00</strong> 点
+        </div>
+        <div class="recommendation-current-result">
+          <span class="recommendation-current-result-label">現時点での推薦点</span>
+          <strong id="res_current_point" class="recommendation-current-result-value">0.0000</strong>
+          <span class="recommendation-current-result-unit">点</span>
+        </div>
+        <p class="recommendation-formula-caption">TOTAL POINTS ÷ 34.475</p>
+      </section>
+
+      <!-- 目標逆算 -->
+      <section class="recommendation-total" aria-labelledby="target-heading">
+        <div class="recommendation-section-title">
+          <h2 id="target-heading">目標に届くために今後必要な平均点</h2>
+          <span>TARGET CALCULATOR</span>
+        </div>
+
+        <div class="target-controls">
+          <div>
+            <label class="target-control-label" for="target_score">目標とする推薦点</label>
+            <select id="target_score" class="target-select">
+              <option value="60" selected>60点</option>
+              <option value="70">70点</option>
+              <option value="80">80点</option>
+            </select>
+          </div>
+          <label class="qualification-check" for="noEngQual">
+            <input type="checkbox" id="noEngQual">
+            <span>英検・TOEIC 未取得</span>
+          </label>
+        </div>
+
+        <div class="target-breakdown">
+          <div class="target-breakdown-item">
+            <span class="target-breakdown-label">基準点</span>
+            <strong id="res_base_points" class="target-breakdown-value">2376</strong>
+            <span class="target-breakdown-label">点</span>
+          </div>
+          <div class="target-breakdown-item">
+            <span class="target-breakdown-label">現時点の持ち点</span>
+            <strong id="res_current_total_calc" class="target-breakdown-value">0.00</strong>
+            <span class="target-breakdown-label">点</span>
+          </div>
+        </div>
+
+        <div class="recommendation-goal-result">
+          <span class="recommendation-goal-result-label">大学推薦に必要な目標平均点</span>
+          <strong id="res_goal_avg" class="recommendation-goal-result-value">入力を開始してください</strong>
+        </div>
+        <p class="recommendation-formula-caption">(基準点 − 現時点の持ち点) ÷ 5.125</p>
+        <p class="recommendation-footer-note">※ 入力した平均点・評価をもとにした計算結果です。学校から提示された正式な配点・評価基準と照らし合わせてご利用ください。</p>
+      </section>
+    </div>
+  </main>
+
+  <!-- サイト共通フッター -->
+  <footer class="site-footer">
+    <div>© まもうな (@Mamouna_inori) / MAMOUNA OFFICIAL WEB SITE</div>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const inputs = document.querySelectorAll('input, select');
+      inputs.forEach(input => {
+        input.addEventListener('input', calculate);
+        input.addEventListener('change', calculate);
+      });
+      calculate();
+    });
+
+    function calculate() {
+      // 入力値の取得
+      const score1 = Number(document.getElementById('score1').value) || 0;
+      const score2 = Number(document.getElementById('score2').value) || 0;
+      const score_explore_2 = Number(document.getElementById('score_explore_2').value) || 0;
+      const score_collab_2 = Number(document.getElementById('score_collab_2').value) || 0;
+      const score3_term1 = Number(document.getElementById('score3').value) || 0;
+      const score3_term2_mid = Number(document.getElementById('score4').value) || 0;
+
+      const targetScore = Number(document.getElementById('target_score').value) || 60;
+      const noEngQual = document.getElementById('noEngQual').checked;
+
+      // 各項目の計算
+      const a = score1 * 9.9; // (ア)
+      const i = score2 * 12.4; // (イ)
+      const u = score_collab_2; // (ウ)
+      const e = score_explore_2; // (エ)
+      const o = score3_term1 * 7.75; // (オ)
+      const ka = score3_term2_mid * 3.625; // (カ)
+
+      // 現時点での推薦点
+      const currentTotal = a + i + u + e + o + ka;
+      const currentPoint = currentTotal / 34.475;
+
+      // 目標逆算
+      const actualTarget = noEngQual ? targetScore + 10 : targetScore;
+      const k = actualTarget * 39.6;
+      const remainingPoints = k - currentTotal;
+      const goalAvg = remainingPoints / 5.125;
+
+      const round = (num, digits) => {
+        const factor = Math.pow(10, digits);
+        return (Math.round(num * factor) / factor).toFixed(digits);
+      };
+
+      // 計算結果の反映
+      document.getElementById('res_a').textContent = round(a, 2);
+      document.getElementById('res_i').textContent = round(i, 2);
+      document.getElementById('res_o').textContent = round(o, 2);
+      document.getElementById('res_ka').textContent = round(ka, 2);
+      document.getElementById('res_total_points').textContent = round(currentTotal, 2);
+      document.getElementById('res_current_point').textContent = round(currentPoint, 4);
+      document.getElementById('res_base_points').textContent = round(k, 0);
+      document.getElementById('res_current_total_calc').textContent = round(currentTotal, 2);
+
+      const goalAvgEl = document.getElementById('res_goal_avg');
+      const noScoreInput = currentTotal === 0 && score1 === 0 && score2 === 0 &&
+        score_explore_2 === 0 && score_collab_2 === 0 && score3_term1 === 0 &&
+        score3_term2_mid === 0;
+
+      if (noScoreInput) {
+        goalAvgEl.textContent = '入力を開始してください';
+        goalAvgEl.style.color = 'var(--color-text-muted)';
+        goalAvgEl.style.fontSize = '1rem';
+      } else if (goalAvg > 100) {
+        goalAvgEl.textContent = '達成不可能（' + round(goalAvg, 2) + '点必要）';
+        goalAvgEl.style.color = '#DC2626';
+        goalAvgEl.style.fontSize = '1.25rem';
+      } else if (goalAvg <= 0) {
+        goalAvgEl.textContent = '0.00（達成済み）';
+        goalAvgEl.style.color = 'var(--color-brand-blue)';
+        goalAvgEl.style.fontSize = '1.5rem';
+      } else {
+        goalAvgEl.textContent = round(goalAvg, 2);
+        goalAvgEl.style.color = 'var(--color-brand-blue)';
+        goalAvgEl.style.fontSize = '2rem';
+      }
+    }
+  </script>
+</body>
+</html>
